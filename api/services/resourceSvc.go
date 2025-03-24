@@ -72,7 +72,14 @@ func (r *ResourceService) CreateResource(ctx context.Context, resourceOrKindArg 
 		return fmt.Errorf("failed to decode YAML: %w", err)
 	}
 
-	ri, err := r.getResourceInterface(resourceOrKindArg, obj.GetNamespace(), r.client, r.restMapper)
+	// Set default namespace if not specified in the YAML
+	namespace := obj.GetNamespace()
+	if namespace == "" {
+		namespace = "default"
+		obj.SetNamespace(namespace)
+	}
+
+	ri, err := r.getResourceInterface(resourceOrKindArg, namespace, r.client, r.restMapper)
 	if err != nil {
 		return err
 	}
